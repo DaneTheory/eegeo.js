@@ -18,7 +18,7 @@ function PolygonsModule(emscriptenApi) {
     };
 
     var _createAndAdd = function(polygon) {
-        var polygonId = _emscriptenApi.geofenceApi.createGeofenceWithHoles(polygon.getPoints(), polygon.getHoles(), polygon.getConfig());
+        var polygonId = _emscriptenApi.geofenceApi.createGeofence(polygon.getPoints(), polygon.getHoles(), polygon.getConfig());
         _polygonIdToPolygons[polygonId] = polygon;
         return polygonId;
     }

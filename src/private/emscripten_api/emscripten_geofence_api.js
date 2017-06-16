@@ -4,51 +4,44 @@ function EmscriptenGeofenceApi(apiPointer, cwrap, runtime) {
 
     var _removeGeofence = cwrap("removeGeofence", null, ["number", "number"]);
     var _setGeofenceColor = cwrap("setGeofenceColor", null, ["number", "number", "number", "number", "number", "number"]);
-    var _createGeofenceWithHoles = cwrap("createGeofenceWithHoles", null, ["number", "number", "number", "number", "number",
+    var _createGeofenceFromRawCoords = cwrap("createGeofenceFromRawCoords", null, ["number", "number", "number",
       "number", "number", "number", "number"]);
 
-    this.createGeofenceWithHoles = function(outerPoints, holes, config) {
-      var outerData = [];
-      var holesData = [];
-      var holesLengths = [];
+    this.createGeofence = function(outerPoints, holes, config) {
+      var coords = [];
+      var ringVertexCounts = [];
+      ringVertexCounts.push(outerPoints.length);
       outerPoints.forEach(function(point) {
-        outerData.push(point.lat);
-        outerData.push(point.lng);
+        coords.push(point.lat);
+        coords.push(point.lng);
       });
 
       holes.forEach(function(ring) {
-        holesLengths.push(ring.length);
+        ringVertexCounts.push(ring.length);
         ring.forEach(function(point) {
-          holesData.push(point.lat);
-          holesData.push(point.lng);
+          coords.push(point.lat);
+          coords.push(point.lng);
         });
       });
 
-      var outerDataPointer = Module._malloc(outerData.length * 8);
-      for (var i=0; i<outerData.length; ++i) {
-          Module.setValue(outerDataPointer + i*8, outerData[i], "double");
+      var coordsPointer = Module._malloc(coords.length * 8);
+      for (var i=0; i<coords.length; ++i) {
+          Module.setValue(coordsPointer + i*8, coords[i], "double");
       }
 
-      var holesDataPointer = Module._malloc(holesData.length * 8);
-      for (var j=0; j<holesData.length; ++j) {
-          Module.setValue(holesDataPointer+ j*8, holesData[j], "double");
+      var ringVertexCountsPointer = Module._malloc(ringVertexCounts.length * 4);
+      for (var k=0; k<ringVertexCounts.length; ++k) {
+          Module.setValue(ringVertexCountsPointer + k*4, ringVertexCounts[k], "i32");
       }
 
-      var innerRingLengthsPointer = Module._malloc(holesLengths.length * 4);
-      for (var k=0; k<holesLengths.length; ++k) {
-          Module.setValue(innerRingLengthsPointer + k*4, holesLengths[k], "i32");
-      }
-
-      polygonId = _createGeofenceWithHoles(_apiPointer, 
-          outerDataPointer, outerData.length,
-          holesDataPointer, holesData.length, 
-          innerRingLengthsPointer, holesLengths.length, 
+      polygonId = _createGeofenceFromRawCoords(_apiPointer, 
+          coordsPointer, coords.length,
+          ringVertexCountsPointer, ringVertexCounts.length, 
           config.offsetFromSeaLevel || false, 
           config.altitudeOffset || 0.0);
 
-      Module._free(outerDataPointer);
-      Module._free(holesDataPointer);
-      Module._free(innerRingLengthsPointer);
+      Module._free(coordsPointer);
+      Module._free(ringVertexCountsPointer);
 
       return polygonId;
     };
