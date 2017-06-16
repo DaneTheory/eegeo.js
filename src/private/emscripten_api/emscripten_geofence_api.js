@@ -4,8 +4,7 @@ function EmscriptenGeofenceApi(apiPointer, cwrap, runtime) {
 
     var _removeGeofence = cwrap("removeGeofence", null, ["number", "number"]);
     var _setGeofenceColor = cwrap("setGeofenceColor", null, ["number", "number", "number", "number", "number", "number"]);
-    var _createGeofenceFromRawCoords = cwrap("createGeofenceFromRawCoords", null, ["number", "number", "number",
-      "number", "number", "number", "number"]);
+    var _createGeofenceFromRawCoords = cwrap("createGeofenceFromRawCoords", null, ["number", "number", "number", "number", "number", "number", "number", "string", "number", "number"]);
 
     this.createGeofence = function(outerPoints, holes, config) {
       var coords = [];
@@ -34,11 +33,17 @@ function EmscriptenGeofenceApi(apiPointer, cwrap, runtime) {
           Module.setValue(ringVertexCountsPointer + k*4, ringVertexCounts[k], "i32");
       }
 
+      var indoorMapId = config.indoorMapId || "";
+
       polygonId = _createGeofenceFromRawCoords(_apiPointer, 
           coordsPointer, coords.length,
           ringVertexCountsPointer, ringVertexCounts.length, 
           config.offsetFromSeaLevel || false, 
-          config.altitudeOffset || 0.0);
+          config.altitudeOffset || 0.0,
+          indoorMapId,
+          indoorMapId.length,
+          config.indoorMapFloorId || 0
+          );
 
       Module._free(coordsPointer);
       Module._free(ringVertexCountsPointer);
