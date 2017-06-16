@@ -9,8 +9,6 @@ function PolygonsModule(emscriptenApi) {
 
 
     var _createPendingPolygons = function() {
-        var api = _emscriptenApi.geofenceApi;
-
         _pendingPolygons.forEach(function(polygon) {
             _createAndAdd(polygon);
         });
@@ -21,7 +19,7 @@ function PolygonsModule(emscriptenApi) {
         var polygonId = _emscriptenApi.geofenceApi.createGeofence(polygon.getPoints(), polygon.getHoles(), polygon.getConfig());
         _polygonIdToPolygons[polygonId] = polygon;
         return polygonId;
-    }
+    };
 
     this.addPolygon = function(polygon) {
         if (_ready) {
@@ -42,7 +40,10 @@ function PolygonsModule(emscriptenApi) {
             return; 
         }
 
-        var polygonId = Object.keys(_polygonIdToPolygons).find(function(key) { return _polygonIdToPolygons[key] === polygon});
+        var polygonId = Object.keys(_polygonIdToPolygons).find(function(key) { 
+                return _polygonIdToPolygons[key] === polygon;
+            }
+        );
         if (polygonId === undefined) {
             return;
         }

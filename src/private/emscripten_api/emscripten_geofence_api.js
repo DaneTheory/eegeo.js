@@ -35,7 +35,7 @@ function EmscriptenGeofenceApi(apiPointer, cwrap, runtime) {
 
       var indoorMapId = config.indoorMapId || "";
 
-      polygonId = _createGeofenceFromRawCoords(_apiPointer, 
+      var polygonId = _createGeofenceFromRawCoords(_apiPointer, 
           coordsPointer, coords.length,
           ringVertexCountsPointer, ringVertexCounts.length, 
           config.offsetFromSeaLevel || false, 
